@@ -30,6 +30,7 @@ private:
 
     void showDialog();
 
+    QColor getMainColor(const QColor& mainColor);
     QColor getBackColor(const QColor& mainColor);
     QColor getFrontColor(const QColor& mainColor);
 

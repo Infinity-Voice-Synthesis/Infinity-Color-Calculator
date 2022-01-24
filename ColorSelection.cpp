@@ -6,8 +6,7 @@ ColorSelection::ColorSelection(QWidget *parent)
     this->setMouseTracking(true);
     this->setWindowIcon(QIcon(":/ColorSelection/LOGO.png"));
     this->setMinimumSize(800, 600);
-    //this->maincolor.setHsv(359, 255, 255 * this->seedMain);
-    this->maincolor.setHsv(359, 255 * this->seedMain, 255);
+    this->maincolor.setHsv(359, 255, 255);
 }
 
 void ColorSelection::resizeEvent(QResizeEvent* event)
@@ -39,16 +38,6 @@ void ColorSelection::mousePressEvent(QMouseEvent* event)
         }
         else {
             this->dark = !this->dark;
-            int h = 0;
-            int s = 0;
-            int v = 0;
-            this->maincolor.getHsv(&h, &s, &v);
-            if (this->dark) {
-                this->maincolor.setHsv(h, s, 255 * this->seedMain);
-            }
-            else {
-                this->maincolor.setHsv(h, 255 * this->seedMain, v);
-            }
             this->update();
         }
     }
@@ -104,6 +93,7 @@ void ColorSelection::paintEvent(QPaintEvent* event)
 
     QColor backColor = this->getBackColor(this->maincolor);
     QColor frontColor = this->getFrontColor(this->maincolor);
+    QColor color = this->getMainColor(this->maincolor);
 
     if (this->dark) {
         painter.fillRect(0, 0, this->width(), this->height(), QColor(30, 30, 30));
@@ -113,7 +103,7 @@ void ColorSelection::paintEvent(QPaintEvent* event)
     }
 
     painter.fillRect(this->width() * this->hMargin, this->height() * this->vMargin, this->width() * (1 - 2 * this->hMargin), this->height() * (1 - 2 * this->vMargin), backColor);
-    painter.fillRect(this->width() * this->hMargin, this->height() * this->vMargin, this->width() * (1 - 2 * this->hMargin), this->height() * this->topBar, this->maincolor);
+    painter.fillRect(this->width() * this->hMargin, this->height() * this->vMargin, this->width() * (1 - 2 * this->hMargin), this->height() * this->topBar, color);
 
     QPen pen;
     pen.setWidth(4);
@@ -152,19 +142,25 @@ void ColorSelection::showDialog()
 {
     QColor color = QColorDialog::getColor(this->maincolor, this, "Select Main Color");
     if (color.isValid()) {
-        int h = 0;
-        int s = 0;
-        int v = 0;
-        color.getHsv(&h, &s, &v);
-        if (this->dark) {
-            this->maincolor.setHsv(h, s, 255 * this->seedMain);
-        }
-        else {
-            this->maincolor.setHsv(h, 255 * this->seedMain, v);
-        }
-        
+        this->maincolor = color;
     }
     this->update();
+}
+
+QColor ColorSelection::getMainColor(const QColor& mainColor)
+{
+    int h = 0;
+    int s = 0;
+    int v = 0;
+    mainColor.getHsv(&h, &s, &v);
+    QColor color;
+    if (this->dark) {
+        color.setHsv(h, s, 255 * this->seedMain);
+    }
+    else {
+        color.setHsv(h, 255 * this->seedMain, v);
+    }
+    return color;
 }
 
 QColor ColorSelection::getBackColor(const QColor& mainColor)
